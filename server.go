@@ -6,7 +6,8 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 
-	"github.com/belljustin/hancock/fakes"
+	"github.com/belljustin/hancock/models"
+	_ "github.com/belljustin/hancock/models/mem"
 )
 
 func ping(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -18,8 +19,12 @@ func main() {
 	router := httprouter.New()
 	router.GET("/ping", ping)
 
-	keys := fakes.Keys{}
+	keys, ok := models.Open("mem")
+	if !ok {
+		panic("Could not initialize key storage")
+	}
 	RegisterKeyHandlers(router, keys)
 
-	http.ListenAndServe(":8000", router)
+	err := http.ListenAndServe(":8000", router)
+	panic(err)
 }

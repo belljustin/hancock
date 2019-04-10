@@ -18,12 +18,12 @@ func (k Keys) Get(id uuid.UUID) (*models.Key, error) {
 	}, nil
 }
 
-func (k Keys) Create(owner string) (*models.Key, error) {
+func (k Keys) Create(owner, alg string, pub, priv []byte) (*models.Key, error) {
 	return &models.Key{
 		Id:        uuid.New(),
-		Algorithm: "fake",
+		Algorithm: alg,
 		Owner:     owner,
-		Pub:       []byte("SGVsbG8sIFdvcmxk"),
-		Priv:      []byte{},
+		Pub:       pub,
+		Priv:      priv,
 	}, nil
 }
