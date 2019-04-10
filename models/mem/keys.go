@@ -28,18 +28,10 @@ func (s Keys) Get(id uuid.UUID) (*models.Key, error) {
 	return &k, nil
 }
 
-func (s Keys) Create(alg, owner string, pub, priv []byte) (*models.Key, error) {
+func (s Keys) Create(k *models.Key) error {
 	s.Lock()
 	defer s.Unlock()
 
-	k := models.Key{
-		Id:        uuid.New(),
-		Algorithm: alg,
-		Owner:     owner,
-		Pub:       pub,
-		Priv:      priv,
-	}
-	s.m[k.Id] = k
-
-	return &k, nil
+	s.m[k.Id] = *k
+	return nil
 }

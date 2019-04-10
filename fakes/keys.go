@@ -8,7 +8,7 @@ import (
 
 type Keys struct{}
 
-func (k Keys) Get(id uuid.UUID) (*models.Key, error) {
+func (s Keys) Get(id uuid.UUID) (*models.Key, error) {
 	return &models.Key{
 		Id:        id,
 		Algorithm: "fake",
@@ -18,12 +18,6 @@ func (k Keys) Get(id uuid.UUID) (*models.Key, error) {
 	}, nil
 }
 
-func (k Keys) Create(owner, alg string, pub, priv []byte) (*models.Key, error) {
-	return &models.Key{
-		Id:        uuid.New(),
-		Algorithm: alg,
-		Owner:     owner,
-		Pub:       pub,
-		Priv:      priv,
-	}, nil
+func (s Keys) Create(k *models.Key) error {
+	return nil
 }

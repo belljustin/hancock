@@ -41,5 +41,5 @@ type Key struct {
 
 type Keys interface {
 	Get(id uuid.UUID) (*Key, error)
-	Create(owner, alg string, pub, priv []byte) (*Key, error)
+	Create(k *Key) error
 }
