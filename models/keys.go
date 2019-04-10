@@ -7,9 +7,11 @@ import (
 )
 
 type Key struct {
-	Id    uuid.UUID `json:"id"`
-	Owner string    `json:"owner"`
-	Data  []byte    `json:"-"`
+	Id        uuid.UUID `json:"id"`
+	Algorithm string    `json:"alg"`
+	Owner     string    `json:"owner"`
+	Pub       []byte    `json:"pub"`
+	Priv      []byte    `json:"-"`
 }
 
 type Keys interface {
