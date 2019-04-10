@@ -11,7 +11,7 @@ import (
 )
 
 type Alg interface {
-	NewKey(owner string) *models.Key
+	NewKey(owner string) (*models.Key, error)
 }
 
 type Rsa struct{}

@@ -23,7 +23,11 @@ func main() {
 	if !ok {
 		panic("Could not initialize key storage")
 	}
-	RegisterKeyHandlers(router, keys)
+	algs := map[string]Alg{
+		"rsa": &Rsa{},
+	}
+
+	RegisterKeyHandlers(router, keys, algs)
 
 	err := http.ListenAndServe(":8000", router)
 	panic(err)

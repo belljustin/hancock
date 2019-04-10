@@ -47,7 +47,7 @@ type CreateKeyRequest struct {
 	Algorithm string `json:"alg"`
 }
 
-func newCreateKey(keys models.Keys) httprouter.Handle {
+func newCreateKey(keys models.Keys, algs map[string]Alg) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -58,20 +58,38 @@ func newCreateKey(keys models.Keys) httprouter.Handle {
 			return
 		}
 
-		jsonCk, err := json.Marshal(ck)
+		alg := algs[ck.Algorithm]
+		if alg == nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		k, err := alg.NewKey("belljust.in/justin")
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if err = keys.Create(k); err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		jsonKey, err := json.Marshal(k)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
-		w.Write(jsonCk)
+		w.Write(jsonKey)
 	}
 }
 
-func RegisterKeyHandlers(r *httprouter.Router, keys models.Keys) {
+func RegisterKeyHandlers(r *httprouter.Router, keys models.Keys, algs map[string]Alg) {
 	root := "/keys"
 
 	r.GET(root+"/:id", newGetKey(keys))
-	r.POST(root, newCreateKey(keys))
+	r.POST(root, newCreateKey(keys, algs))
 }

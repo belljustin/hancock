@@ -9,7 +9,10 @@ import (
 )
 
 func init() {
-	models.Register("mem", Keys{})
+	k := Keys{
+		m: make(map[uuid.UUID]models.Key),
+	}
+	models.Register("mem", k)
 }
 
 type Keys struct {
