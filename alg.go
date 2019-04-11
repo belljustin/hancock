@@ -12,6 +12,7 @@ import (
 
 type Alg interface {
 	NewKey(owner string) (*models.Key, error)
+	Sign(priv, digest []byte) ([]byte, error)
 }
 
 type Rsa struct{}
@@ -32,4 +33,13 @@ func (a *Rsa) NewKey(owner string) (*models.Key, error) {
 		Pub:       pub,
 		Priv:      priv,
 	}, nil
+}
+
+func (a *Rsa) Sign(priv, digest []byte) ([]byte, error) {
+	k, err := x509.ParsePKCS1PrivateKey(priv)
+	if err != nil {
+		return nil, err
+	}
+
+	return k.sign(rand.Reader, digest, nil)
 }

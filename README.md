@@ -63,7 +63,7 @@ Create a key with the provided Algorithm.
 Request:
 ```
 {
-    "data": string
+    "digest": string
 }
 ```
 
@@ -74,7 +74,7 @@ Response:
 }
 ```
 
-Sign data with the key. The input `data` and output `data` are base64 encoded.
+Sign the provided digest with a key. The input `digest` is a hash of the message to be signed.
 
 # Models
 
