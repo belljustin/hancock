@@ -63,7 +63,8 @@ Create a key with the provided Algorithm.
 Request:
 ```
 {
-    "digest": string
+    "digest": string,
+    "hash": Hash
 }
 ```
 
@@ -74,7 +75,7 @@ Response:
 }
 ```
 
-Sign the provided digest with a key. The input `digest` is a hash of the message to be signed.
+Sign the provided digest with a key. The `digest` is hashed with the function specified by `hash`.
 
 # Models
 
@@ -104,3 +105,8 @@ string
 string
 
 A cryptographic signature algorithm.
+
+## Hash
+string
+
+The cryptographic hash used to create the digest.

@@ -1,18 +1,24 @@
 package main
 
 import (
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"errors"
 
 	"github.com/google/uuid"
 
 	"github.com/belljustin/hancock/models"
 )
 
+var hashes = map[string]crypto.Hash{
+	"sha256": crypto.SHA256,
+}
+
 type Alg interface {
 	NewKey(owner string) (*models.Key, error)
-	Sign(priv, digest []byte) ([]byte, error)
+	Sign(priv, digest []byte, hashName string) ([]byte, error)
 }
 
 type Rsa struct{}
@@ -35,11 +41,17 @@ func (a *Rsa) NewKey(owner string) (*models.Key, error) {
 	}, nil
 }
 
-func (a *Rsa) Sign(priv, digest []byte) ([]byte, error) {
+func (a *Rsa) Sign(priv, digest []byte, hashName string) ([]byte, error) {
+	h, ok := hashes[hashName]
+	if !ok {
+		return nil, errors.New("Invalid hash")
+	}
+
 	k, err := x509.ParsePKCS1PrivateKey(priv)
 	if err != nil {
 		return nil, err
 	}
 
-	return k.sign(rand.Reader, digest, nil)
+	s, err := k.Sign(rand.Reader, digest, h)
+	return s, err
 }
