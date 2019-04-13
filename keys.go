@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -12,56 +12,52 @@ import (
 	"github.com/belljustin/hancock/models"
 )
 
-type httpError struct {
-	statusCode int
-}
-
-func (err *httpError) Error() string {
-	return http.StatusText(err.statusCode)
-}
-
 func getKey(keys models.Keys, sid string) (*models.Key, error) {
 	if sid == "" {
-		log.Println("Router matched path without `id` param")
-		return nil, &httpError{http.StatusInternalServerError}
+		return nil, &httpError{
+			http.StatusInternalServerError,
+			"Router matched path without id param",
+		}
 	}
 	id, err := uuid.Parse(sid)
 	if err != nil {
-		return nil, &httpError{http.StatusBadRequest}
+		return nil, &httpError{
+			http.StatusBadRequest,
+			fmt.Sprintf("Could not parse key id '%s'", sid),
+		}
 	}
 
 	k, err := keys.Get(id)
 	if err != nil {
-		log.Println(err.Error())
-		return nil, &httpError{http.StatusInternalServerError}
+		return nil, newInternalServerError(err)
 	} else if k == nil {
-		return nil, &httpError{http.StatusNotFound}
+		return nil, &httpError{
+			http.StatusNotFound,
+			fmt.Sprintf("Could not find key id '%s'", id.String()),
+		}
 	}
 
 	return k, nil
 }
 
 func newGetKey(keys models.Keys) httprouter.Handle {
-	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	f := func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) error {
 		w.Header().Set("Content-Type", "application/json")
 
 		k, err := getKey(keys, ps.ByName("id"))
 		if err != nil {
-			if err, ok := err.(*httpError); ok {
-				w.WriteHeader(err.statusCode)
-			} else {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-			return
+			return err
 		}
 
 		enc := json.NewEncoder(w)
 		if err := enc.Encode(&k); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return newInternalServerError(err)
 		}
+
+		return nil
 	}
+
+	return appHandler(f).Handle
 }
 
 type CreateKeyRequest struct {
@@ -69,43 +65,46 @@ type CreateKeyRequest struct {
 }
 
 func newCreateKey(keys models.Keys, algs map[string]Alg) httprouter.Handle {
-	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	f := func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) error {
 		w.Header().Set("Content-Type", "application/json")
 
 		decoder := json.NewDecoder(req.Body)
 		var ck CreateKeyRequest
 		if err := decoder.Decode(&ck); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
+			return &httpError{
+				http.StatusBadRequest,
+				"Malformed request",
+			}
 		}
 
 		alg := algs[ck.Algorithm]
 		if alg == nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
+			return &httpError{
+				http.StatusBadRequest,
+				fmt.Sprintf("Unsupported algorithm '%s'", ck.Algorithm),
+			}
 		}
 
 		k, err := alg.NewKey("belljust.in/justin")
 		if err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return newInternalServerError(err)
 		}
 
 		if err = keys.Create(k); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
+			return newInternalServerError(err)
 		}
 
 		jsonKey, err := json.Marshal(k)
 		if err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return newInternalServerError(err)
 		}
+
 		w.WriteHeader(http.StatusCreated)
 		w.Write(jsonKey)
+		return nil
 	}
+
+	return appHandler(f).Handle
 }
 
 type CreateSignatureRequest struct {
@@ -118,55 +117,58 @@ type CreateSignatureResponse struct {
 }
 
 func newCreateSignature(keys models.Keys, algs map[string]Alg) httprouter.Handle {
-	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	f := func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) error {
 		w.Header().Set("Content-Type", "application/json")
 
 		k, err := getKey(keys, ps.ByName("id"))
 		if err != nil {
-			if err, ok := err.(*httpError); ok {
-				w.WriteHeader(err.statusCode)
-			} else {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-			return
+			return err
 		}
 
 		alg := algs[k.Algorithm]
 		if alg == nil {
-			log.Println("Tried to sign key with unsupported algorithm")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return &httpError{
+				http.StatusInternalServerError,
+				fmt.Sprintf("Tried to sign key with unsupported algorithm '%s'", k.Algorithm),
+			}
 		}
 
 		decoder := json.NewDecoder(req.Body)
 		var cs CreateSignatureRequest
 		if err := decoder.Decode(&cs); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
+			return &httpError{
+				http.StatusBadRequest,
+				"Malformed Request",
+			}
 		}
 
 		bDigest, err := hex.DecodeString(cs.Digest)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
+			return &httpError{
+				http.StatusBadRequest,
+				"Digest must be hex encoded",
+			}
 		}
 
 		sig, err := alg.Sign(k.Priv, bDigest, cs.Hash)
 		if err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return &httpError{
+				http.StatusInternalServerError,
+				err.Error(),
+			}
 		}
 
 		jsonSig, err := json.Marshal(sig)
 		if err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return newInternalServerError(err)
 		}
+
 		w.WriteHeader(http.StatusCreated)
 		w.Write(jsonSig)
+		return nil
 	}
+
+	return appHandler(f).Handle
 }
 
 func RegisterKeyHandlers(r *httprouter.Router, keys models.Keys, algs map[string]Alg) {
