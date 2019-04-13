@@ -54,9 +54,9 @@ func NewRouter() http.Handler {
 	router := httprouter.New()
 	router.GET("/ping", ping)
 
-	keys, ok := models.Open("mem")
-	if !ok {
-		panic("Could not initialize key storage")
+	keys, err := models.Open("mem")
+	if err != nil {
+		panic(err)
 	}
 	algs := map[string]Alg{
 		"rsa": &Rsa{},

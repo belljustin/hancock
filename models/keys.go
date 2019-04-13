@@ -2,6 +2,7 @@ package models
 
 import (
 	_ "encoding/json"
+	"errors"
 	"sync"
 
 	"github.com/google/uuid"
@@ -24,11 +25,17 @@ func Register(name string, driver Keys) {
 	drivers[name] = driver
 }
 
-func Open(name string) (Keys, bool) {
+func Open(name string) (Keys, error) {
 	driversMu.RLock()
 	defer driversMu.RUnlock()
+
 	s, ok := drivers[name]
-	return s, ok
+	if !ok {
+		return nil, errors.New("Key storage not registered")
+	}
+
+	err := s.Open()
+	return s, err
 }
 
 type Key struct {
@@ -42,4 +49,5 @@ type Key struct {
 type Keys interface {
 	Get(id uuid.UUID) (*Key, error)
 	Create(k *Key) error
+	Open() error
 }

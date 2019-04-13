@@ -12,7 +12,7 @@ func init() {
 	k := Keys{
 		m: make(map[uuid.UUID]models.Key),
 	}
-	models.Register("mem", k)
+	models.Register("mem", &k)
 }
 
 type Keys struct {
@@ -20,7 +20,7 @@ type Keys struct {
 	m map[uuid.UUID]models.Key
 }
 
-func (s Keys) Get(id uuid.UUID) (*models.Key, error) {
+func (s *Keys) Get(id uuid.UUID) (*models.Key, error) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -31,10 +31,14 @@ func (s Keys) Get(id uuid.UUID) (*models.Key, error) {
 	return &k, nil
 }
 
-func (s Keys) Create(k *models.Key) error {
+func (s *Keys) Create(k *models.Key) error {
 	s.Lock()
 	defer s.Unlock()
 
 	s.m[k.Id] = *k
 	return nil
+}
+
+func (s *Keys) Open() error {
+	return nil // no-op
 }
