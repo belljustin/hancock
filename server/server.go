@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -50,8 +50,7 @@ func ping(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	io.WriteString(w, "Pong")
 }
 
-func main() {
-
+func NewRouter() http.Handler {
 	router := httprouter.New()
 	router.GET("/ping", ping)
 
@@ -65,6 +64,5 @@ func main() {
 
 	RegisterKeyHandlers(router, keys, algs)
 
-	err := http.ListenAndServe(":8000", router)
-	panic(err)
+	return router
 }

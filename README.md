@@ -2,7 +2,15 @@
 
 A cryptographic signing service.
 
-# API
+# Server
+
+A json REST server can be started with the command:
+
+```
+./hancock server
+```
+
+The following endpoints are available at `http://127.0.0.1:8000` by default.
 
 ## List Keys
 
@@ -112,3 +120,23 @@ string
 - sha256
 
 The cryptographic hash used to create the digest.
+
+# Client
+
+The hancock binary also provides a cli for interacting with the server.
+
+## New Key
+
+Generate a new key with the specified `$ALG`.
+
+```
+$ ./hancock keys new -alg=$ALG
+
+id: 8b40edd6-926d-40a6-a825-7e7db2a6aae9
+alg: rsa
+owner: belljust.in/justin
+pub: MIIBCgKCAQEAztwZg/HaDqy1Iu37foCg+Ew3WA4YKISefKuTIK0t5OShyX1IjgR3BOSX8syN5TTfXITA6KfL/kDdUC1qWsM6zz08v57V888ICU7P9fhmARCPJl4L54XnO4BUZWjVI79V/M0T8dN+PQhanLJXIlF+01PJponvjr+LNWgYW4habxzl3MWECtYy5oKjRjyLfyltrEpchfBmefgdL353XWb7ftI+XwGQwLJLif9zTIvs88cAr1XXHcxlZW52i3pHYX1XWA3FIB8FB5ubaWFv0BvcHtfnADhqwWdNpbbkqzBXKaaKamAWtafwy3Zm61/i7xfkjwW5rPu5xjPpGzqJ7iqiHQIDAQAB   
+```
+
+flags:
+- alg, required: the algorithm to use in key generation
