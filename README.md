@@ -103,10 +103,12 @@ string
 
 ## Algorithm
 string
+- rsa
 
 A cryptographic signature algorithm.
 
 ## Hash
 string
+- sha256
 
 The cryptographic hash used to create the digest.
