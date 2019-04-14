@@ -9,9 +9,7 @@ import (
 )
 
 func init() {
-	k := Keys{
-		m: make(map[uuid.UUID]models.Key),
-	}
+	k := Keys{}
 	models.Register("mem", &k)
 }
 
@@ -39,6 +37,7 @@ func (s *Keys) Create(k *models.Key) error {
 	return nil
 }
 
-func (s *Keys) Open() error {
-	return nil // no-op
+func (s *Keys) Open(config []byte) error {
+	s.m = make(map[uuid.UUID]models.Key)
+	return nil
 }

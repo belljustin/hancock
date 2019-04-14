@@ -26,8 +26,19 @@ func usage() {
 // Server Commands
 
 func handleServer(args []string) {
-	router := server.NewRouter()
-	err := http.ListenAndServe(":8000", router)
+	f, err := os.Open("config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	c, err := server.LoadConfig(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router := server.NewRouter(c)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", c.Port), router)
 	panic(err)
 }
 

@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -19,8 +20,13 @@ type Keys struct {
 	db *sql.DB
 }
 
-func (s *Keys) Open() error {
-	connStr := "user=hancock dbname=hancock sslmode=disable"
+func (s *Keys) Open(rawConfig []byte) error {
+	c, err := LoadConfig(rawConfig)
+	if err != nil {
+		return err
+	}
+
+	connStr := fmt.Sprintf("user=%s dbname=%s sslmode=%s", c.User, c.Name, c.SSLMode)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return err

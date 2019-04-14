@@ -25,7 +25,7 @@ func Register(name string, driver Keys) {
 	drivers[name] = driver
 }
 
-func Open(name string) (Keys, error) {
+func Open(name string, config []byte) (Keys, error) {
 	driversMu.RLock()
 	defer driversMu.RUnlock()
 
@@ -34,7 +34,7 @@ func Open(name string) (Keys, error) {
 		return nil, errors.New("Key storage not registered")
 	}
 
-	err := s.Open()
+	err := s.Open(config)
 	return s, err
 }
 
@@ -49,5 +49,5 @@ type Key struct {
 type Keys interface {
 	Get(id uuid.UUID) (*Key, error)
 	Create(k *Key) error
-	Open() error
+	Open(config []byte) error
 }

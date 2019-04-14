@@ -9,6 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/belljustin/hancock/models"
+	_ "github.com/belljustin/hancock/models/mem"
 	_ "github.com/belljustin/hancock/models/postgres"
 )
 
@@ -50,11 +51,11 @@ func ping(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	io.WriteString(w, "Pong")
 }
 
-func NewRouter() http.Handler {
+func NewRouter(c *Config) http.Handler {
 	router := httprouter.New()
 	router.GET("/ping", ping)
 
-	keys, err := models.Open("postgres")
+	keys, err := models.Open(c.StorageType, c.StorageConfig)
 	if err != nil {
 		panic(err)
 	}
