@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -33,8 +34,7 @@ func handleServer(args []string) {
 // Key Commands
 
 func keyUsage() {
-	fmt.Println("hancock key usage: ")
-	os.Exit(-1)
+	log.Fatal("hancock key usage: ")
 }
 
 func handleKeys(args []string) {
@@ -60,20 +60,17 @@ func handleNewKey(args []string) {
 	cmd.StringVar(&alg, "alg", "", "Algorithm used to create the new key")
 	err := cmd.Parse(args[1:])
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 
 	if alg == "" {
-		fmt.Println("Required flag alg cannot be empty")
-		os.Exit(-1)
+		log.Fatal("Required flag alg cannot be empty")
 	}
 
 	c := client.NewHancockClient(url)
 	k, err := c.NewKey(alg)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 
 	pubKey := base64.StdEncoding.EncodeToString(k.Pub)
@@ -87,21 +84,18 @@ func handleGetKey(args []string) {
 	cmd.StringVar(&sid, "id", "", "Key identifier")
 	err := cmd.Parse(args[1:])
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 
 	id, err := uuid.Parse(sid)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 
 	c := client.NewHancockClient(url)
 	k, err := c.GetKey(id)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		log.Fatal(err)
 	}
 
 	pubKey := base64.StdEncoding.EncodeToString(k.Pub)
