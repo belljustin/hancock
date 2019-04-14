@@ -9,7 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/belljustin/hancock/models"
-	_ "github.com/belljustin/hancock/models/mem"
+	_ "github.com/belljustin/hancock/models/postgres"
 )
 
 type httpError struct {
@@ -54,7 +54,7 @@ func NewRouter() http.Handler {
 	router := httprouter.New()
 	router.GET("/ping", ping)
 
-	keys, err := models.Open("mem")
+	keys, err := models.Open("postgres")
 	if err != nil {
 		panic(err)
 	}

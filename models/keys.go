@@ -39,11 +39,11 @@ func Open(name string) (Keys, error) {
 }
 
 type Key struct {
-	Id        uuid.UUID `json:"id"`
-	Algorithm string    `json:"alg"`
-	Owner     string    `json:"owner"`
-	Pub       []byte    `json:"pub"`
-	Priv      []byte    `json:"-"`
+	Id        uuid.UUID `json:"id" sql:"id"`
+	Algorithm string    `json:"alg" sql:"alg"`
+	Owner     string    `json:"owner" sql:"owner"`
+	Pub       []byte    `json:"pub" sql:"pub"`
+	Priv      []byte    `json:"-" sql:"priv"`
 }
 
 type Keys interface {
