@@ -48,6 +48,8 @@ func handleKeys(args []string) {
 		handleNewKey(args)
 	case "get":
 		handleGetKey(args)
+	case "sign":
+		handleCreateSignature(args)
 	default:
 		keyUsage()
 	}
@@ -100,6 +102,39 @@ func handleGetKey(args []string) {
 
 	pubKey := base64.StdEncoding.EncodeToString(k.Pub)
 	fmt.Printf("id: %s\nalg: %s\nowner: %s\npub: %s\n", k.Id.String(), k.Algorithm, k.Owner, pubKey)
+}
+
+func handleCreateSignature(args []string) {
+	var sid string
+	var hash string
+	var digest string
+
+	cmd := flag.NewFlagSet("createSignature", flag.ExitOnError)
+	cmd.StringVar(&sid, "id", "", "Key identifier")
+	cmd.StringVar(&hash, "hash", "sha256", "Hashing algorithm used to produce digest")
+	cmd.StringVar(&digest, "digest", "", "Digest to be signed")
+	err := cmd.Parse(args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	id, err := uuid.Parse(sid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if digest == "" {
+		log.Fatal("digest must not be empty")
+	}
+
+	c := client.NewHancockClient(url)
+	s, err := c.CreateSignature(id, hash, digest)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	b64s := base64.StdEncoding.EncodeToString(s)
+	fmt.Printf("signature: %s\n", b64s)
 }
 
 func main() {

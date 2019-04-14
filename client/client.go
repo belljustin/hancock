@@ -91,3 +91,40 @@ func (c *Hancock) GetKey(id uuid.UUID) (*models.Key, error) {
 
 	return &k, nil
 }
+
+func (c *Hancock) CreateSignature(id uuid.UUID, hash, digest string) ([]byte, error) {
+	url := fmt.Sprintf("%s/keys/%s/signature", c.url, id.String())
+
+	cs := server.CreateSignatureRequest{Digest: digest, Hash: hash}
+	data := new(bytes.Buffer)
+	enc := json.NewEncoder(data)
+	if err := enc.Encode(cs); err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", url, data)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.New(resp.Status)
+		}
+		return nil, errors.New(string(body))
+	}
+
+	var s server.CreateSignatureResponse
+	dec := json.NewDecoder(resp.Body)
+	if err = dec.Decode(&s); err != nil {
+		return nil, err
+	}
+
+	return s.Signature, nil
+}

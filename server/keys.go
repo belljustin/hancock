@@ -158,7 +158,8 @@ func newCreateSignature(keys models.Keys, algs map[string]Alg) httprouter.Handle
 			}
 		}
 
-		jsonSig, err := json.Marshal(sig)
+		res := &CreateSignatureResponse{Signature: sig}
+		jsonSig, err := json.Marshal(res)
 		if err != nil {
 			return newInternalServerError(err)
 		}
