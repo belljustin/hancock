@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/google/uuid"
+
 	"github.com/belljustin/hancock/client"
 	"github.com/belljustin/hancock/server"
 )
@@ -44,6 +46,8 @@ func handleKeys(args []string) {
 	switch args[0] {
 	case "new":
 		handleNewKey(args)
+	case "get":
+		handleGetKey(args)
 	default:
 		keyUsage()
 	}
@@ -67,6 +71,34 @@ func handleNewKey(args []string) {
 
 	c := client.NewHancockClient(url)
 	k, err := c.NewKey(alg)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+
+	pubKey := base64.StdEncoding.EncodeToString(k.Pub)
+	fmt.Printf("id: %s\nalg: %s\nowner: %s\npub: %s\n", k.Id.String(), k.Algorithm, k.Owner, pubKey)
+}
+
+func handleGetKey(args []string) {
+	var sid string
+
+	cmd := flag.NewFlagSet("getKey", flag.ExitOnError)
+	cmd.StringVar(&sid, "id", "", "Key identifier")
+	err := cmd.Parse(args[1:])
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+
+	id, err := uuid.Parse(sid)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
+
+	c := client.NewHancockClient(url)
+	k, err := c.GetKey(id)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)

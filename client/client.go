@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/google/uuid"
 
 	"github.com/belljustin/hancock/models"
 	"github.com/belljustin/hancock/server"
@@ -42,6 +45,37 @@ func (c *Hancock) NewKey(alg string) (*models.Key, error) {
 	}
 
 	if resp.StatusCode != http.StatusCreated {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.New(resp.Status)
+		}
+		return nil, errors.New(string(body))
+	}
+
+	var k models.Key
+	dec := json.NewDecoder(resp.Body)
+	if err = dec.Decode(&k); err != nil {
+		return nil, err
+	}
+
+	return &k, nil
+}
+
+func (c *Hancock) GetKey(id uuid.UUID) (*models.Key, error) {
+	url := fmt.Sprintf("%s/keys/%s", c.url, id.String())
+
+	data := new(bytes.Buffer)
+	req, err := http.NewRequest("GET", url, data)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, errors.New(resp.Status)
