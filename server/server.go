@@ -26,7 +26,7 @@ func NewRouter(c *Config) http.Handler {
 		"rsa": &Rsa{},
 	}
 
-	RegisterKeyHandlers(router, keys, algs)
+	registerKeyHandlers(router, keys, algs)
 
 	return router
 }
