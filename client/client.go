@@ -103,6 +103,7 @@ func (c *Hancock) CreateSignature(id uuid.UUID, hash, digest string) ([]byte, er
 	}
 
 	req, err := http.NewRequest("POST", url, data)
+	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}

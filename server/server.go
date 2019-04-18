@@ -2,11 +2,10 @@ package server
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gin-gonic/gin"
 
 	"github.com/belljustin/hancock/models"
 	_ "github.com/belljustin/hancock/models/mem"
@@ -29,11 +28,11 @@ func newInternalServerError(err error) *httpError {
 	}
 }
 
-type appHandler func(http.ResponseWriter, *http.Request, httprouter.Params) error
+type appHandler func(http.ResponseWriter, *http.Request) error
 
-func (fn appHandler) Handle(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+func (fn appHandler) Handle(w http.ResponseWriter, req *http.Request) {
 	code := 500
-	if err := fn(w, req, ps); err != nil {
+	if err := fn(w, req); err != nil {
 		if err, ok := err.(*httpError); ok {
 			code = err.Code
 		}
@@ -47,12 +46,12 @@ func (fn appHandler) Handle(w http.ResponseWriter, req *http.Request, ps httprou
 	}
 }
 
-func ping(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	io.WriteString(w, "Pong")
+func ping(c *gin.Context) {
+	c.String(http.StatusOK, "Pong")
 }
 
 func NewRouter(c *Config) http.Handler {
-	router := httprouter.New()
+	router := gin.Default()
 	router.GET("/ping", ping)
 
 	keys, err := models.Open(c.StorageType, c.StorageConfig)
