@@ -8,6 +8,15 @@ import (
 	"github.com/belljustin/hancock/key"
 )
 
+const (
+	driverName = "mem"
+)
+
+func init() {
+	s := &KeyStorage{}
+	key.Register(driverName, s)
+}
+
 type KeyStorage struct {
 	sync.RWMutex
 	m         map[string]key.Key

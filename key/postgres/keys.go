@@ -11,6 +11,11 @@ import (
 	"github.com/belljustin/hancock/key"
 )
 
+func init() {
+	s := &KeyStorage{}
+	key.Register("postgres", s)
+}
+
 type KeyStorage struct {
 	db *sql.DB
 
