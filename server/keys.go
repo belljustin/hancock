@@ -1,6 +1,8 @@
 package server
 
 import (
+	"crypto"
+	"crypto/rand"
 	"encoding/hex"
 	_ "encoding/json"
 	"fmt"
@@ -8,36 +10,37 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/gin-gonic/gin/binding"
-	"github.com/google/uuid"
 
-	"github.com/belljustin/hancock/models"
+	"github.com/belljustin/hancock/key"
 )
 
-type KeysHandler struct {
-	keys models.Keys
-	algs map[string]Alg
+var hashes = map[string]crypto.Hash{
+	"sha256": crypto.SHA256,
 }
 
-func (h *KeysHandler) getKeyById(sid string) (*models.Key, error) {
-	id, err := uuid.Parse(sid)
-	if err != nil {
-		return nil, &httpError{
-			http.StatusBadRequest,
-			fmt.Sprintf("Could not parse key id '%s'", sid),
-		}
-	}
+type KeysHandler struct {
+	keys key.KeyStorage
+}
 
+func (h *KeysHandler) getKeyById(id string) (*key.Key, error) {
 	k, err := h.keys.Get(id)
 	if err != nil {
 		return nil, err
 	} else if k == nil {
 		return nil, &httpError{
 			http.StatusNotFound,
-			fmt.Sprintf("Could not find key id '%s'", id.String()),
+			fmt.Sprintf("Could not find key id '%s'", id),
 		}
 	}
 
 	return k, nil
+}
+
+type GetKeyResponse struct {
+	Id        string           `json:"id"`
+	Algorithm string           `json:"alg"`
+	Owner     string           `json:"owner"`
+	PublicKey crypto.PublicKey `json:"public_key"`
 }
 
 func (h *KeysHandler) getKey(c *gin.Context) {
@@ -46,11 +49,21 @@ func (h *KeysHandler) getKey(c *gin.Context) {
 		handleError(c, err)
 		return
 	}
-	c.JSON(200, &k)
+	c.JSON(200, &GetKeyResponse{
+		Id:        k.Id,
+		Algorithm: k.Algorithm,
+		Owner:     k.Owner,
+		PublicKey: k.Signer.Public(),
+	})
 }
 
 type CreateKeyRequest struct {
-	Algorithm string `json:"alg" binding:"required"`
+	Algorithm string   `json:"alg" binding:"required"`
+	Opts      key.Opts `json:"opts"`
+}
+
+type CreateKeyResponse struct {
+	Id string `json:"id" binding:"required"`
 }
 
 func (h *KeysHandler) createKey(c *gin.Context) {
@@ -63,25 +76,19 @@ func (h *KeysHandler) createKey(c *gin.Context) {
 		return
 	}
 
-	alg := h.algs[ck.Algorithm]
-	if alg == nil {
+	// TODO: cleanup opts and owner
+	k, err := h.keys.Create("belljust.in/justin", ck.Algorithm, ck.Opts)
+	if err != nil {
+		// TODO: figure out how to handle errors
 		handleError(c, &httpError{
 			http.StatusBadRequest,
-			fmt.Sprintf("Unsupported algorithm '%s'", ck.Algorithm),
+			err.Error(),
 		})
 		return
 	}
 
-	k, err := alg.NewKey("belljust.in/justin")
-	if err != nil {
-		panic(err)
-	}
-
-	if err = h.keys.Create(k); err != nil {
-		panic(err)
-	}
-
-	c.JSON(http.StatusCreated, &k)
+	res := &CreateKeyResponse{k.Id}
+	c.JSON(http.StatusCreated, res)
 }
 
 type CreateSignatureRequest struct {
@@ -100,21 +107,23 @@ func (h *KeysHandler) createSignature(c *gin.Context) {
 		return
 	}
 
-	alg := h.algs[k.Algorithm]
-	if alg == nil {
-		err = fmt.Errorf("Tried to sign key with unsupported algorithm '%s'", k.Algorithm)
-		panic(err)
-	}
-
 	var cs CreateSignatureRequest
 	if err := c.ShouldBind(&cs); err != nil {
 		handleError(c, &httpError{
 			http.StatusBadRequest,
-			"Malformed Request",
+			err.Error(),
 		})
 		return
 	}
-	fmt.Printf("%+v\n", cs)
+
+	hash, ok := hashes[cs.Hash]
+	if !ok {
+		handleError(c, &httpError{
+			http.StatusBadRequest,
+			fmt.Sprintf("Hash '%s' is not supported", cs.Hash),
+		})
+		return
+	}
 
 	bDigest, err := hex.DecodeString(cs.Digest)
 	if err != nil {
@@ -125,7 +134,7 @@ func (h *KeysHandler) createSignature(c *gin.Context) {
 		return
 	}
 
-	sig, err := alg.Sign(k.Priv, bDigest, cs.Hash)
+	sig, err := k.Signer.Sign(rand.Reader, bDigest, hash)
 	if err != nil {
 		panic(err)
 	}
@@ -134,11 +143,8 @@ func (h *KeysHandler) createSignature(c *gin.Context) {
 	c.JSON(http.StatusCreated, &res)
 }
 
-func registerKeyHandlers(r *gin.Engine, keys models.Keys, algs map[string]Alg) {
-	h := &KeysHandler{
-		keys,
-		algs,
-	}
+func registerKeyHandlers(r *gin.Engine, s key.KeyStorage) {
+	h := &KeysHandler{s}
 
 	kr := r.Group("/keys")
 

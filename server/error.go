@@ -16,9 +16,9 @@ func (err *httpError) Error() string {
 }
 
 func handleError(c *gin.Context, err error) {
-	if err, ok := err.(*httpError); ok {
-		c.Error(err)
-		c.AbortWithStatusJSON(err.Code, &err)
+	if herr, ok := err.(*httpError); ok {
+		c.Error(herr)
+		c.AbortWithStatusJSON(herr.Code, &herr)
 	} else {
 		panic(err)
 	}

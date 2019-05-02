@@ -4,7 +4,6 @@ CREATE TABLE keys (
 	id UUID PRIMARY KEY,
 	alg TEXT,
 	owner TEXT,
-	pub BYTEA,
 	priv BYTEA
 );
 CREATE INDEX keys_alg_idx ON keys (alg);

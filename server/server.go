@@ -5,9 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/belljustin/hancock/models"
-	_ "github.com/belljustin/hancock/models/mem"
-	_ "github.com/belljustin/hancock/models/postgres"
+	db "github.com/belljustin/hancock/key/postgres"
 )
 
 func ping(c *gin.Context) {
@@ -18,15 +16,13 @@ func NewRouter(c *Config) http.Handler {
 	router := gin.Default()
 	router.GET("/ping", ping)
 
-	keys, err := models.Open(c.StorageType, c.StorageConfig)
+	keyStorage := db.KeyStorage{}
+	err := keyStorage.Open(c.StorageConfig)
 	if err != nil {
 		panic(err)
 	}
-	algs := map[string]Alg{
-		"rsa": &Rsa{},
-	}
 
-	registerKeyHandlers(router, keys, algs)
+	registerKeyHandlers(router, &keyStorage)
 
 	return router
 }
