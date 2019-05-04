@@ -19,7 +19,7 @@ var hashes = map[string]crypto.Hash{
 }
 
 type KeysHandler struct {
-	keys key.KeyStorage
+	keys key.Storage
 }
 
 func (h *KeysHandler) getKeyById(id string) (*key.Key, error) {
@@ -143,7 +143,7 @@ func (h *KeysHandler) createSignature(c *gin.Context) {
 	c.JSON(http.StatusCreated, &res)
 }
 
-func registerKeyHandlers(r *gin.Engine, s key.KeyStorage) {
+func registerKeyHandlers(r *gin.Engine, s key.Storage) {
 	h := &KeysHandler{s}
 
 	kr := r.Group("/keys")

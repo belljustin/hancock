@@ -9,10 +9,10 @@ import (
 
 var (
 	driversMu sync.RWMutex
-	drivers   = make(map[string]KeyStorage)
+	drivers   = make(map[string]Storage)
 )
 
-func Register(name string, driver KeyStorage) {
+func Register(name string, driver Storage) {
 	driversMu.Lock()
 	defer driversMu.Unlock()
 	if driver == nil {
@@ -24,7 +24,7 @@ func Register(name string, driver KeyStorage) {
 	drivers[name] = driver
 }
 
-func Open(driverName string, config []byte) (KeyStorage, error) {
+func Open(driverName string, config []byte) (Storage, error) {
 	driversMu.RLock()
 	driver, ok := drivers[driverName]
 	driversMu.RUnlock()
@@ -43,7 +43,7 @@ type Key struct {
 
 type Opts map[string]interface{}
 
-type KeyStorage interface {
+type Storage interface {
 	Get(id string) (*Key, error)
 	Create(owner, alg string, o Opts) (*Key, error)
 	Open(config []byte) error
