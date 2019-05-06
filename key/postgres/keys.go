@@ -29,7 +29,7 @@ func (s *KeyStorage) Open(rawConfig []byte) error {
 		return err
 	}
 
-	s.codec = key.DefaultCodec
+	s.codec = c.GetCodec()
 	s.generator = key.DefaultSignerGenerator
 
 	connStr := fmt.Sprintf("user=%s dbname=%s sslmode=%s", c.User, c.Name, c.SSLMode)

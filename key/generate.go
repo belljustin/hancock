@@ -8,10 +8,6 @@ import (
 	"fmt"
 )
 
-const (
-	RSA = "rsa"
-)
-
 type GenerateSignerFunc func(o Opts) (crypto.Signer, error)
 
 type SignerGenerator struct {

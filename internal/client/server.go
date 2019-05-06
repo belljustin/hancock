@@ -9,10 +9,6 @@ import (
 	_ "github.com/belljustin/hancock/key/postgres"
 )
 
-const (
-	url = "http://127.0.0.1:8000"
-)
-
 var ServerCmd = cli.Command{
 	Name:    "server",
 	Aliases: []string{"s"},
@@ -26,6 +22,6 @@ func runServer(c *cli.Context) error {
 		return err
 	}
 
-	s, err := key.Open(conf.StorageType, conf.StorageConfig)
-	return server.Run(conf.Port, s)
+	s, err := key.Open(conf.Backend, conf.Storage)
+	return server.Run(conf.Server.Port, s)
 }

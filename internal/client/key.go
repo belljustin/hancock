@@ -35,7 +35,7 @@ func createClientFunc(f clientFunc) cli.ActionFunc {
 			return err
 		}
 
-		storage, err := key.Open(conf.StorageType, conf.StorageConfig)
+		storage, err := key.Open(conf.Backend, conf.Storage)
 		if err != nil {
 			return err
 		}

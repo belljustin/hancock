@@ -1,6 +1,15 @@
 {
-    "host": "http://127.0.0.1",
-    "port": 8000,
-    "storageType": "mem",
-    "storage": {}
+    "server": {
+        "host": "http://127.0.0.1",
+        "port": 8000
+    },
+    "backend": "postgres",
+    "storage": {
+        "encryption": "rsa",
+	"key": "secret",
+
+        "user": "hancock",
+        "dbname": "hancock",
+	"sslmode": "disable"
+    }
 }

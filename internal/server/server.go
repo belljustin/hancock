@@ -1,6 +1,7 @@
 package server
 
 import (
+	_ "encoding/json"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,11 @@ import (
 
 	"github.com/belljustin/hancock/key"
 )
+
+type Config struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
 
 func ping(c *gin.Context) {
 	c.String(http.StatusOK, "Pong")

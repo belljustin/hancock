@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/urfave/cli"
@@ -9,15 +10,28 @@ import (
 	"github.com/belljustin/hancock/key"
 )
 
-func loadConfig(c *cli.Context) (*server.Config, error) {
+type Config struct {
+	Server  server.Config   `json:"server"`
+	Backend string          `json:"backend"`
+	Storage json.RawMessage `json:"storage"`
+}
+
+func loadConfig(c *cli.Context) (*Config, error) {
 	f, err := os.Open(c.GlobalString("config"))
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	return server.LoadConfig(f)
+
+	var config Config
+	dec := json.NewDecoder(f)
+	if err := dec.Decode(&config); err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
 
-func getStorage(c server.Config) (key.Storage, error) {
-	return key.Open(c.StorageType, c.StorageConfig)
+func getStorage(c Config) (key.Storage, error) {
+	return key.Open(c.Backend, c.Storage)
 }
