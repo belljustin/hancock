@@ -23,5 +23,8 @@ func runServer(c *cli.Context) error {
 	}
 
 	s, err := key.Open(conf.Backend, conf.Storage)
+	if err != nil {
+		return err
+	}
 	return server.Run(conf.Server.Port, s)
 }

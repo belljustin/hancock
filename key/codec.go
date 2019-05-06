@@ -157,6 +157,9 @@ func (c *AesCodec) Decode(data []byte, alg string) (crypto.Signer, error) {
 	nonceSize := gcm.NonceSize()
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	priv, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return c.clearTextMultiCodec.Decode(priv, alg)
 }
