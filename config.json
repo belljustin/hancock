@@ -5,7 +5,7 @@
     },
     "backend": "postgres",
     "storage": {
-        "encryption": "rsa",
+        "encryption": "aes",
 	"key": "secret",
 
         "user": "hancock",

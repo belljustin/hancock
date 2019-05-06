@@ -1,3 +1,4 @@
+// Package postgres is postgres database implementation of the `key.Storage` interface
 package postgres
 
 import (
@@ -16,6 +17,7 @@ func init() {
 	key.Register("postgres", s)
 }
 
+// KeyStorage is an implementation of `key.Storage` using a postgres as a backend.
 type KeyStorage struct {
 	db *sql.DB
 
@@ -23,6 +25,8 @@ type KeyStorage struct {
 	generator key.SignerGenerator
 }
 
+// Open configures the `KeyStorage` using rawConfig and connects to the database.
+// If validation passes, the return value is the result of pinging the database.
 func (s *KeyStorage) Open(rawConfig []byte) error {
 	c, err := LoadConfig(rawConfig)
 	if err != nil {
@@ -42,6 +46,8 @@ func (s *KeyStorage) Open(rawConfig []byte) error {
 	return s.db.Ping()
 }
 
+// Get fetches the `key.Key` specified by the unique sid from the database. All IDs MUST parse to
+// a valid uuid.
 func (s *KeyStorage) Get(sid string) (*key.Key, error) {
 	var k key.Key
 	query := `SELECT id, alg, owner, priv FROM keys
@@ -67,6 +73,7 @@ func (s *KeyStorage) Get(sid string) (*key.Key, error) {
 	return &k, nil
 }
 
+// Create inserts a new `key.Key` into the database. The id will be generated as a v4 uuid.
 func (s *KeyStorage) Create(owner, alg string, opts key.Opts) (*key.Key, error) {
 	update := `INSERT INTO keys(id, alg, owner, priv)
 			   VALUES($1, $2, $3, $4)`

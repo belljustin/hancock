@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Encryption at rest
+- [x] Encryption at rest
 - [ ] Password support for database
 - [ ] SSL
 - [ ] Auth

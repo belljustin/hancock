@@ -8,12 +8,17 @@ import (
 	"fmt"
 )
 
+// GenerateSignerFunc is a type of function that produces a Signer given some `Opts`.
 type GenerateSignerFunc func(o Opts) (crypto.Signer, error)
 
+// SignerGenrator collects `GenerateSignerFunc`s by the cryptographic signing algorithms on which
+// they rely.
 type SignerGenerator struct {
 	Generators map[string]GenerateSignerFunc
 }
 
+// New generates a new Signer using the cryptographic signing algorithm specified by alg using
+// the provided `Opts`.
 func (f *SignerGenerator) New(alg string, o Opts) (crypto.Signer, error) {
 	g, ok := f.Generators[alg]
 	if !ok {
@@ -22,6 +27,7 @@ func (f *SignerGenerator) New(alg string, o Opts) (crypto.Signer, error) {
 	return g(o)
 }
 
+// DefaultSignerGenerator is a sensible default generator that supports RSA.
 var DefaultSignerGenerator = SignerGenerator{
 	Generators: map[string]GenerateSignerFunc{
 		RSA: rsaGenerateSigner,

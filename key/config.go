@@ -1,6 +1,7 @@
 package key
 
 import (
+	"log"
 	"os"
 )
 
@@ -10,13 +11,19 @@ const (
 
 	// signing algorithms
 	RSA = "rsa"
+
+	// encryption algorithms
+	AES = "aes"
 )
 
+// Config provides configuration for KeyStorage.
 type Config struct {
 	Encryption string `json:"encryption"`
 	Key        string `json:"key"`
 }
 
+// LoadEnv replaces empty fields with matching environment variables. See this file's
+// constants for a list of available options.
 func (c *Config) LoadEnv() {
 	if c.Key != "" {
 		return
@@ -25,11 +32,14 @@ func (c *Config) LoadEnv() {
 	}
 }
 
+// GetCodec returns builtin `MultiCodec`s according to the config's Encryption.
 func (c *Config) GetCodec() MultiCodec {
 	switch c.Encryption {
-	case RSA:
+	case AES:
+		log.Print("hancock: added AES encryption")
 		return NewAesCodec(DefaultCodec, c.Key)
 	default:
+		log.Print("hancock: no encryption enabled")
 		return DefaultCodec
 	}
 }

@@ -1,3 +1,4 @@
+// Package hancock is binary for managing opaque cryptographic signing keys
 package main
 
 import (
@@ -7,10 +8,6 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/belljustin/hancock/internal/client"
-)
-
-const (
-	url = "http://127.0.0.1:8000"
 )
 
 func main() {
