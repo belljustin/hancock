@@ -37,7 +37,7 @@ func main() {
 	s, _ := key.Open("mem", []byte{})
 
 	// Create a new RSA signing key
-	k, _ := s.Create("owner", "rsa", nil)
+	k, _ := s.Create("rsa", nil)
 
 	// Use k.Signer implements `crypto.Signer`
 	signature, _ := k.Signer.Sign(rand.Reader, digest, crypto.SHA256)

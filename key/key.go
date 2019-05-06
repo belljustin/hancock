@@ -50,8 +50,6 @@ type Key struct {
 	Id string `json:"id" sql:"id"`
 	// Algorithm specifies the cryptographic signing algorithm underlying this key.
 	Algorithm string `json:"alg" sql:"alg"`
-	// Owner identifies the owner of this key.
-	Owner string `json:"owner" sql:"owner"`
 	// Signer implements the crypto.Signer interface which can be used for signing and inspecting
 	// the public key.
 	Signer crypto.Signer
@@ -68,7 +66,7 @@ type Storage interface {
 	Get(id string) (*Key, error)
 	// Create inserts a new `Key` generated using the algorithm specified by alg and the provided
 	// `Opts`. The resulting `Key` is returned.
-	Create(owner, alg string, o Opts) (*Key, error)
+	Create(alg string, o Opts) (*Key, error)
 	// Open opens a key storage. This must be called before calling other methods on `Storage`.
 	// Most users will Open a key `Storage` using the a driverName as in `Open`.
 	Open(config []byte) error

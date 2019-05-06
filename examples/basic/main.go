@@ -13,7 +13,7 @@ import (
 func main() {
 	s, _ := key.Open("mem", []byte{})
 
-	k, _ := s.Create("owner", "rsa", nil)
+	k, _ := s.Create("rsa", nil)
 
 	hasher := sha256.New()
 	hasher.Write([]byte("document to sign"))

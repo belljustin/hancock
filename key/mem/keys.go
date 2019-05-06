@@ -39,7 +39,7 @@ func (s *KeyStorage) Get(id string) (*key.Key, error) {
 }
 
 // Create inserts a new key of type alg in memory.
-func (s *KeyStorage) Create(owner, alg string, opts key.Opts) (*key.Key, error) {
+func (s *KeyStorage) Create(alg string, opts key.Opts) (*key.Key, error) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -51,7 +51,6 @@ func (s *KeyStorage) Create(owner, alg string, opts key.Opts) (*key.Key, error) 
 	k := key.Key{
 		Id:        uuid.New().String(),
 		Algorithm: alg,
-		Owner:     owner,
 		Signer:    signer,
 	}
 

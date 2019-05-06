@@ -63,7 +63,7 @@ func createKey(s key.Storage, c *cli.Context) error {
 	}
 
 	opts := key.Opts{}
-	k, err := s.Create("belljust.in/justin", alg, opts)
+	k, err := s.Create(alg, opts)
 	if err != nil {
 		return err
 	}

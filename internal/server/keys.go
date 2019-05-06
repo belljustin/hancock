@@ -39,7 +39,6 @@ func (h *KeysHandler) getKeyById(id string) (*key.Key, error) {
 type GetKeyResponse struct {
 	Id        string           `json:"id"`
 	Algorithm string           `json:"alg"`
-	Owner     string           `json:"owner"`
 	PublicKey crypto.PublicKey `json:"public_key"`
 }
 
@@ -52,7 +51,6 @@ func (h *KeysHandler) getKey(c *gin.Context) {
 	c.JSON(200, &GetKeyResponse{
 		Id:        k.Id,
 		Algorithm: k.Algorithm,
-		Owner:     k.Owner,
 		PublicKey: k.Signer.Public(),
 	})
 }
@@ -76,8 +74,8 @@ func (h *KeysHandler) createKey(c *gin.Context) {
 		return
 	}
 
-	// TODO: cleanup opts and owner
-	k, err := h.keys.Create("belljust.in/justin", ck.Algorithm, ck.Opts)
+	// TODO: cleanup opts
+	k, err := h.keys.Create(ck.Algorithm, ck.Opts)
 	if err != nil {
 		// TODO: figure out how to handle errors
 		handleError(c, &httpError{

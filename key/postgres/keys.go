@@ -50,7 +50,7 @@ func (s *KeyStorage) Open(rawConfig []byte) error {
 // a valid uuid.
 func (s *KeyStorage) Get(sid string) (*key.Key, error) {
 	var k key.Key
-	query := `SELECT id, alg, owner, priv FROM keys
+	query := `SELECT id, alg, priv FROM keys
 			  WHERE id = $1`
 
 	id, err := uuid.Parse(sid)
@@ -60,7 +60,7 @@ func (s *KeyStorage) Get(sid string) (*key.Key, error) {
 
 	var data []byte
 	r := s.db.QueryRow(query, id)
-	if err := r.Scan(&k.Id, &k.Algorithm, &k.Owner, &data); err != nil {
+	if err := r.Scan(&k.Id, &k.Algorithm, &data); err != nil {
 		return nil, err
 	}
 
@@ -74,9 +74,9 @@ func (s *KeyStorage) Get(sid string) (*key.Key, error) {
 }
 
 // Create inserts a new `key.Key` into the database. The id will be generated as a v4 uuid.
-func (s *KeyStorage) Create(owner, alg string, opts key.Opts) (*key.Key, error) {
-	update := `INSERT INTO keys(id, alg, owner, priv)
-			   VALUES($1, $2, $3, $4)`
+func (s *KeyStorage) Create(alg string, opts key.Opts) (*key.Key, error) {
+	update := `INSERT INTO keys(id, alg, priv)
+			   VALUES($1, $2, $3)`
 
 	signer, err := s.generator.New(alg, opts)
 	if err != nil {
@@ -90,7 +90,7 @@ func (s *KeyStorage) Create(owner, alg string, opts key.Opts) (*key.Key, error) 
 
 	id := uuid.New()
 
-	res, err := s.db.Exec(update, id, alg, owner, data)
+	res, err := s.db.Exec(update, id, alg, data)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,6 @@ func (s *KeyStorage) Create(owner, alg string, opts key.Opts) (*key.Key, error) 
 	return &key.Key{
 		Id:        id.String(),
 		Algorithm: alg,
-		Owner:     owner,
 		Signer:    signer,
 	}, nil
 }
