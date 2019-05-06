@@ -1,10 +1,13 @@
+[![GoDoc](https://godoc.org/github.com/belljustin/hancock?status.svg)](https://godoc.org/github.com/belljustin/hancock)
+[![Go Report Card](https://goreportcard.com/badge/belljustin/hancock)](https://goreportcard.com/report/belljustin/hancock)
+
 CAUTION: still in active development and subject to change.
 
 # Hancock
 
 An interface for opaque cryptographic signatures.
 
-Use the standard library `crypto.Signer` interface for signing with keys stored in-memory, a database, or an HSM managed by your cloud provider.
+Standard library `crypto.Signer` for signing keys stored in-memory, a database, or an HSM managed by your cloud provider.
 Hancock also provides a binary that includes a CLI and a json REST server.
 
 ## Currently Supported Drivers
