@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	// environment variables
-	ENV_KEY = "HANCOCK_KEY"
+	// EnvKey is the environment variable specifying secret encryption key.
+	EnvKey = "HANCOCK_KEY"
 
-	// signing algorithms
+	// RSA the signing algorithm
 	RSA = "rsa"
 
-	// encryption algorithms
+	// AES the encryption algorithm
 	AES = "aes"
 )
 
@@ -27,7 +27,7 @@ type Config struct {
 func (c *Config) LoadEnv() {
 	if c.Key != "" {
 		return
-	} else if key, ok := os.LookupEnv(ENV_KEY); ok {
+	} else if key, ok := os.LookupEnv(EnvKey); ok {
 		c.Key = key
 	}
 }

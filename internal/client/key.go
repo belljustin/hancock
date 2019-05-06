@@ -16,6 +16,7 @@ var hashes = map[string]crypto.Hash{
 	"sha256": crypto.SHA256,
 }
 
+// KeyCmd is the command for managing keys
 var KeyCmd = cli.Command{
 	Name:  "key",
 	Usage: "manage keys",
@@ -67,7 +68,7 @@ func createKey(s key.Storage, c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Created key %s", k.Id)
+	fmt.Printf("Created key %s", k.ID)
 	return nil
 }
 

@@ -50,7 +50,7 @@ type multiCodec struct {
 func (c *multiCodec) Encode(k crypto.Signer, alg string) ([]byte, error) {
 	enc, ok := c.Codecs[alg]
 	if !ok {
-		return []byte{}, fmt.Errorf("Algorithm '%s' is not supported by the codec.", alg)
+		return []byte{}, fmt.Errorf("algorithm '%s' is not supported by the codec", alg)
 	}
 	return enc.Encode(k)
 }
@@ -58,7 +58,7 @@ func (c *multiCodec) Encode(k crypto.Signer, alg string) ([]byte, error) {
 func (c *multiCodec) Decode(priv []byte, alg string) (crypto.Signer, error) {
 	dec, ok := c.Codecs[alg]
 	if !ok {
-		return nil, fmt.Errorf("Algorithm '%s' is not supported by the codec.", alg)
+		return nil, fmt.Errorf("algorithm '%s' is not supported by the codec", alg)
 	}
 	return dec.Decode(priv)
 }

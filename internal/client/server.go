@@ -5,10 +5,11 @@ import (
 
 	"github.com/belljustin/hancock/internal/server"
 	"github.com/belljustin/hancock/key"
-	_ "github.com/belljustin/hancock/key/mem"
-	_ "github.com/belljustin/hancock/key/postgres"
+	_ "github.com/belljustin/hancock/key/mem"      // Register in-memory backend
+	_ "github.com/belljustin/hancock/key/postgres" // Register postgres backend
 )
 
+// ServerCmd provides the command for running the hancock REST server.
 var ServerCmd = cli.Command{
 	Name:    "server",
 	Aliases: []string{"s"},

@@ -4,12 +4,12 @@ import (
 	"crypto"
 	"crypto/rand"
 	"encoding/hex"
-	_ "encoding/json"
+	_ "encoding/json" // for tagging structs
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/gin-gonic/gin/binding"
+	_ "github.com/gin-gonic/gin/binding" // for gin bindings
 
 	"github.com/belljustin/hancock/key"
 )
@@ -18,11 +18,11 @@ var hashes = map[string]crypto.Hash{
 	"sha256": crypto.SHA256,
 }
 
-type KeysHandler struct {
+type keysHandler struct {
 	keys key.Storage
 }
 
-func (h *KeysHandler) getKeyById(id string) (*key.Key, error) {
+func (h *keysHandler) getKeyByID(id string) (*key.Key, error) {
 	k, err := h.keys.Get(id)
 	if err != nil {
 		return nil, err
@@ -36,36 +36,36 @@ func (h *KeysHandler) getKeyById(id string) (*key.Key, error) {
 	return k, nil
 }
 
-type GetKeyResponse struct {
-	Id        string           `json:"id"`
+type getKeyResponse struct {
+	ID        string           `json:"id"`
 	Algorithm string           `json:"alg"`
 	PublicKey crypto.PublicKey `json:"public_key"`
 }
 
-func (h *KeysHandler) getKey(c *gin.Context) {
-	k, err := h.getKeyById(c.Param("id"))
+func (h *keysHandler) getKey(c *gin.Context) {
+	k, err := h.getKeyByID(c.Param("id"))
 	if err != nil {
 		handleError(c, err)
 		return
 	}
-	c.JSON(200, &GetKeyResponse{
-		Id:        k.Id,
+	c.JSON(200, &getKeyResponse{
+		ID:        k.ID,
 		Algorithm: k.Algorithm,
 		PublicKey: k.Signer.Public(),
 	})
 }
 
-type CreateKeyRequest struct {
+type createKeyRequest struct {
 	Algorithm string   `json:"alg" binding:"required"`
 	Opts      key.Opts `json:"opts"`
 }
 
-type CreateKeyResponse struct {
-	Id string `json:"id" binding:"required"`
+type createKeyResponse struct {
+	ID string `json:"id" binding:"required"`
 }
 
-func (h *KeysHandler) createKey(c *gin.Context) {
-	var ck CreateKeyRequest
+func (h *keysHandler) createKey(c *gin.Context) {
+	var ck createKeyRequest
 	if err := c.ShouldBind(&ck); err != nil {
 		handleError(c, &httpError{
 			http.StatusBadRequest,
@@ -85,27 +85,27 @@ func (h *KeysHandler) createKey(c *gin.Context) {
 		return
 	}
 
-	res := &CreateKeyResponse{k.Id}
+	res := &createKeyResponse{k.ID}
 	c.JSON(http.StatusCreated, res)
 }
 
-type CreateSignatureRequest struct {
+type createSignatureRequest struct {
 	Digest string `json:"digest" binding:"required"`
 	Hash   string `json:"hash" binding:"required"`
 }
 
-type CreateSignatureResponse struct {
+type createSignatureResponse struct {
 	Signature []byte `json:"signature"`
 }
 
-func (h *KeysHandler) createSignature(c *gin.Context) {
-	k, err := h.getKeyById(c.Param("id"))
+func (h *keysHandler) createSignature(c *gin.Context) {
+	k, err := h.getKeyByID(c.Param("id"))
 	if err != nil {
 		handleError(c, err)
 		return
 	}
 
-	var cs CreateSignatureRequest
+	var cs createSignatureRequest
 	if err := c.ShouldBind(&cs); err != nil {
 		handleError(c, &httpError{
 			http.StatusBadRequest,
@@ -137,12 +137,12 @@ func (h *KeysHandler) createSignature(c *gin.Context) {
 		panic(err)
 	}
 
-	res := &CreateSignatureResponse{Signature: sig}
+	res := &createSignatureResponse{Signature: sig}
 	c.JSON(http.StatusCreated, &res)
 }
 
 func registerKeyHandlers(r *gin.Engine, s key.Storage) {
-	h := &KeysHandler{s}
+	h := &keysHandler{s}
 
 	kr := r.Group("/keys")
 

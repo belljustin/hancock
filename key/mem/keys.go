@@ -49,12 +49,12 @@ func (s *KeyStorage) Create(alg string, opts key.Opts) (*key.Key, error) {
 	}
 
 	k := key.Key{
-		Id:        uuid.New().String(),
+		ID:        uuid.New().String(),
 		Algorithm: alg,
 		Signer:    signer,
 	}
 
-	s.m[k.Id] = k
+	s.m[k.ID] = k
 	return &k, nil
 }
 

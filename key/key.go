@@ -3,7 +3,7 @@ package key
 
 import (
 	"crypto"
-	_ "encoding/json"
+	_ "encoding/json" // for json tagging of structs
 	"fmt"
 	"sync"
 )
@@ -46,8 +46,8 @@ func Open(driverName string, config []byte) (Storage, error) {
 
 // Key is an interface for opaque cryptographic signing keys.
 type Key struct {
-	// Id is a unique identifier for the key.
-	Id string `json:"id" sql:"id"`
+	// ID is a unique identifier for the key.
+	ID string `json:"id" sql:"id"`
 	// Algorithm specifies the cryptographic signing algorithm underlying this key.
 	Algorithm string `json:"alg" sql:"alg"`
 	// Signer implements the crypto.Signer interface which can be used for signing and inspecting

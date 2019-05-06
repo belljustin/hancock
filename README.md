@@ -1,5 +1,5 @@
 [![GoDoc](https://godoc.org/github.com/belljustin/hancock?status.svg)](https://godoc.org/github.com/belljustin/hancock)
-[![Go Report Card](https://goreportcard.com/badge/belljustin/hancock)](https://goreportcard.com/report/belljustin/hancock)
+[![Go Report Card](https://goreportcard.com/badge/github.com/belljustin/hancock)](https://goreportcard.com/report/github.com/belljustin/hancock)
 
 CAUTION: still in active development and subject to change.
 

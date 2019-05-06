@@ -11,7 +11,7 @@ import (
 // GenerateSignerFunc is a type of function that produces a Signer given some `Opts`.
 type GenerateSignerFunc func(o Opts) (crypto.Signer, error)
 
-// SignerGenrator collects `GenerateSignerFunc`s by the cryptographic signing algorithms on which
+// SignerGenerator collects `GenerateSignerFunc`s by the cryptographic signing algorithms on which
 // they rely.
 type SignerGenerator struct {
 	Generators map[string]GenerateSignerFunc
@@ -22,7 +22,7 @@ type SignerGenerator struct {
 func (f *SignerGenerator) New(alg string, o Opts) (crypto.Signer, error) {
 	g, ok := f.Generators[alg]
 	if !ok {
-		return nil, fmt.Errorf("Algorithm '%s' is not a supported signer alg.", alg)
+		return nil, fmt.Errorf("algorithm '%s' is not a supported signer alg", alg)
 	}
 	return g(o)
 }

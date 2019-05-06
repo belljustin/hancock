@@ -60,7 +60,7 @@ func (s *KeyStorage) Get(sid string) (*key.Key, error) {
 
 	var data []byte
 	r := s.db.QueryRow(query, id)
-	if err := r.Scan(&k.Id, &k.Algorithm, &data); err != nil {
+	if err := r.Scan(&k.ID, &k.Algorithm, &data); err != nil {
 		return nil, err
 	}
 
@@ -104,7 +104,7 @@ func (s *KeyStorage) Create(alg string, opts key.Opts) (*key.Key, error) {
 	}
 
 	return &key.Key{
-		Id:        id.String(),
+		ID:        id.String(),
 		Algorithm: alg,
 		Signer:    signer,
 	}, nil
