@@ -1,0 +1,17 @@
+version: "3.1"
+
+services:
+  postgres-db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: "hancock"
+      POSTGReS_DB: "hancock"
+    ports:
+      - "8432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hancock"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -1,6 +1,31 @@
 # Hancock PostgreSQL Driver
 
-Provides data storage for hancock keys with PostgreSQL.
+Implements the hancock `key.Storage` interface with PostgreSQL.
+
+## Config
+
+Typical configuration may look like the following:
+
+```json
+{
+    "backend": "postgres",
+    "storage": {
+        "encryption": "aes",
+	"key": "secret",
+
+        "user": "hancock",
+	"password": "password",
+
+	"host": "127.0.0.1",
+	"port": 5432,
+        "dbname": "hancock",
+
+	"sslmode": "require"
+    }
+}
+```
+
+The database password may also be passed as environment variable by setting `HANCOCK_POSTGRES_PASSWORD`. The configuration file has precendence over environment variables.
 
 ## Running migrations
 
