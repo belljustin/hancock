@@ -36,7 +36,7 @@ func (s *KeyStorage) Open(rawConfig []byte) error {
 	s.codec = c.GetCodec()
 	s.generator = key.DefaultSignerGenerator
 
-	connStr := fmt.Sprintf("user=%s dbname=%s sslmode=%s", c.User, c.Name, c.SSLMode)
+	connStr := fmt.Sprintf("user=%s password='%s' host=%s port=%d dbname=%s sslmode=%s", c.User, c.Password, c.Host, c.Port, c.Name, c.SSLMode)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return err

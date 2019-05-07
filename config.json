@@ -9,7 +9,12 @@
 	"key": "secret",
 
         "user": "hancock",
+	"password": "password",
+
+	"host": "127.0.0.1",
+	"port": 5432,
         "dbname": "hancock",
-	"sslmode": "disable"
+
+	"sslmode": "require"
     }
 }
