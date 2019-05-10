@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/assets/hancock.jpg" width="360"></p>
+
 [![GoDoc](https://godoc.org/github.com/belljustin/hancock?status.svg)](https://godoc.org/github.com/belljustin/hancock)
 [![Go Report Card](https://goreportcard.com/badge/github.com/belljustin/hancock)](https://goreportcard.com/report/github.com/belljustin/hancock)
 
